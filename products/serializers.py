@@ -27,5 +27,13 @@ class ProductSerializer(serializers.ModelSerializer):
 
             the object recieved here is that instance of the model
         """
+        if not hasattr(obj, "id"):
+            return None
+        if not isinstance(obj, Product):
+            return None
         return obj.get_discount()
+        # try:
+        #     return obj.get_discount()
+        # except:
+        #     return None
 
