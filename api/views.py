@@ -15,6 +15,7 @@ def api_home(request, *args, **kwargs):
     DRF API View
     """
     instance = Product.objects.all().order_by("?").first()
+    print(instance)
     data = {}
     if instance:
         # data = model_to_dict(
@@ -37,6 +38,5 @@ def api_home(request, *args, **kwargs):
 def api_home_post(request, *args, **kwargs):
     serializer = ProductSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
-        # instance = serializer.save()
-        print(serializer.data)
+        instance = serializer.save()
         return Response(serializer.data)
