@@ -8,12 +8,16 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from .permissions import IsStaffEditorPermission
+from api.authentication import TokenAuthentication
 
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [authentication.SessionAuthentication]
+    authentication_classes = [
+        authentication.SessionAuthentication,
+        TokenAuthentication
+    ]
     permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
