@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from .models import Product
+from . import validators
+
 
 class ProductSerializer(serializers.ModelSerializer):
     """
@@ -23,22 +25,45 @@ class ProductSerializer(serializers.ModelSerializer):
     doesn't exists in the database.
     This is usually done in the create function in the serializer
     """
-    email = serializers.EmailField(write_only=True)
+    # email = serializers.EmailField(write_only=True)
+
+    # linking with validator from external file
+    title = serializers.CharField(validators=[
+        validators.unique_product_title,
+        validators.validate_title_no_hello
+    ])
+    # name = serializers.CharField(source='name', read_only=True)
+
+    # for foreign relationships
+    # email = serializers.CharField(source='user.email', read_only=True)
 
     class Meta:
         model = Product
         fields = [
             "edit_url",
             "url",
-            "email",
+            # "email", for the write only field example
             "pk",
             "title",
+            # 'name', copy of the title
             "content",
             "price",
             "sale_price",
             # tells django to look for the my_discount property
             "my_discount"
         ]
+
+    # custom validation
+    # def validate_title(self, value):
+    #     request = self.context.get('request')
+    #     user = request.user
+    #     # iexact case insensitive
+    #     qs = Product.objects.filter(user=user, title__iexact=value)
+    #     if qs.exists():
+    #         raise serializers.ValidationError(
+    #             f"{value} is already a product name"
+    #         )
+    #     return value
 
     # def create(self, validated_data):
     #     """
@@ -65,7 +90,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "pk": obj.pk
         }, request=request)
 
-
     def get_my_discount(self, obj):
         """
             when looking for the my_discount property, this method
@@ -82,4 +106,3 @@ class ProductSerializer(serializers.ModelSerializer):
         #     return obj.get_discount()
         # except:
         #     return None
-
