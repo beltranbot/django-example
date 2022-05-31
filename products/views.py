@@ -1,4 +1,4 @@
-from rest_framework import generics, mixins, permissions, authentication
+from rest_framework import generics, mixins
 
 from .models import Product
 from .serializers import ProductSerializer
@@ -7,12 +7,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from api.mixins import StaffEditorPermissionMixin
+from api.mixins import StaffEditorPermissionMixin, UserQuerySetMixin
 
 
 class ProductListCreateAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin,
-    generics.ListCreateAPIView
+    generics.ListCreateAPIView # this has to be the last extend
 ):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -31,14 +32,22 @@ class ProductListCreateAPIView(
         content = serializer.validated_data.get('content') or None
         if content is None:
             content = title
-        serializer.save(content=content)  # django does this automatically
+        # django does this automatically
+        serializer.save(user=self.request.user, content=content)
         # send a Django signal
+
+    # def get_queryset(self, *args, **kwargs):
+    #     qs = super().get_queryset(*args, **kwargs)
+    #     request = self.request
+    #     print(request.user)
+    #     return qs.filter(user=request.user)
 
 
 product_list_create_view = ProductListCreateAPIView.as_view()
 
 
 class ProductDetailAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin,
     generics.RetrieveAPIView
 ):
@@ -55,6 +64,7 @@ product_detail_view = ProductDetailAPIView.as_view()
 
 
 class ProductUpdateAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin,
     generics.UpdateAPIView
 ):
@@ -73,6 +83,7 @@ product_update_view = ProductUpdateAPIView.as_view()
 
 
 class ProductDestroyAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin,
     generics.DestroyAPIView
 ):

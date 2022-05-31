@@ -40,6 +40,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
+            # "user",
             "edit_url",
             "url",
             # "email", for the write only field example
