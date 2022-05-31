@@ -16,12 +16,21 @@ class ProductSerializer(serializers.ModelSerializer):
         view_name='product-detail',
         lookup_field='pk'
     )
+    """
+    write only field will be required in the data received for the 
+    creation of the object but has to be removed before saving the
+    object itself (validated_data.pop("email")) because the field
+    doesn't exists in the database.
+    This is usually done in the create function in the serializer
+    """
+    email = serializers.EmailField(write_only=True)
 
     class Meta:
         model = Product
         fields = [
             "edit_url",
             "url",
+            "email",
             "pk",
             "title",
             "content",
@@ -30,6 +39,23 @@ class ProductSerializer(serializers.ModelSerializer):
             # tells django to look for the my_discount property
             "my_discount"
         ]
+
+    # def create(self, validated_data):
+    #     """
+    #     called when saving an instance with the serializer
+    #     """
+    #     # return Product.objects.create(**validated_data)
+    #     # email = validated_data.pop('email')
+    #     obj = super().create(validated_data)
+    #     # print(email, obj)
+    #     return obj
+
+    # def update(self, instance, validated_data):
+    #     """
+    #     called when updating an instance with the serializer
+    #     """
+    #     email = validated_data.pop('email')
+    #     return super().update(instance, validated_data)
 
     def get_edit_url(self, obj):
         request = self.context.get('request')
